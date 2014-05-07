@@ -41,3 +41,7 @@ class Arena():
 		# Listens for incoming connections from players joining the game
 		reactor.listenTCP(PLAYER_PORT, PlayerConnectionFactory())
 		reactor.run() # Waits forever for connections
+
+
+if __name__ == "__main__":
+	arena = Arena() # By instantiating the Arena object, it starts listening for connections
