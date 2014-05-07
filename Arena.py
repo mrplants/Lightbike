@@ -20,11 +20,13 @@ from twisted.internet.defer import DeferredQueue
 
 PLAYER_PORT = 9010
 
+# The actual connection with the player that will send and receive data
 class PlayerConnection(Protocol):
 	def __init__(self):
 		pass
 
-# The connection with the remote player, one per player
+
+# Factory for the connection with the Arena
 #	This will create an instance of the PlayerConnection class that will be used during communication 
 class PlayerConnectionFactory(ClientFactory):
 	def startedConnecting(self, connector):
@@ -32,9 +34,14 @@ class PlayerConnectionFactory(ClientFactory):
 
 	def buildProtocol(self, address):
 		return PlayerConnection()
+		
+
+class Arena():
+	def __init__(self):
+		# Listens for incoming connections from players joining the game
+		reactor.listenTCP(PLAYER_PORT, PlayerConnectionFactory())
+		reactor.run() # Waits forever for connections
 
 
 if __name__ == "__main__":
-	# To connect to a client to establish the connection that will be used during game play
-	reactor.connectTCP("student00.cse.nd.edu", PLAYER_PORT, PlayerConnectionFactory())
-	reactor.run()
+	arena = Arena() # By instantiating the Arena object, it starts listening for connections
