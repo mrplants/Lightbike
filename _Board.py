@@ -1,4 +1,6 @@
 import math
+from _BikeEvent import BikeEvent
+import _BikeEvent
 
 # the game board is the logic that remembers where the paths from each bike.
 
@@ -36,6 +38,7 @@ class Board:
         
         self.countD = 0
         self.countN = 1
+        self.start = False
         
     def addBike(self, bikeName, color):
         print "new bike: " + bikeName
@@ -50,6 +53,15 @@ class Board:
         self.bikePaths[bikeName] = [(self.size[ROW]/2, self.size[COLUMN] * float(ratio)), (self.size[ROW]/2, self.size[COLUMN] * float(ratio))]
         print "bike location: " + str(self.bikePaths[bikeName][-1])
         self.bikeColors[bikeName] = color
+    
+    def newEvent(self, event):
+        if event.reason == _BikeEvent.RIGHT_TURN:
+            self.turnBikeRight(event.id)
+        elif event.reason == _BikeEvent.LEFT_TURN:
+            self.turnBikeLeft(event.id)
+        elif event.reason == _BikeEvent.CRASH:
+            print "CRASH: " + event.id
+            self.bikes.remove(event.id)
     
     def turnBikeRight(self, bikeName):
         if self.bikeDirections[bikeName] == NORTH:
@@ -85,6 +97,17 @@ class Board:
             for position in self.bikePaths[bikeName]:
                 if nextPosition == position:
                     return False
+        
+        if not self.positionOnBoard(nextPosition):
+            return False
+        
+        return True
+    
+    def positionOnBoard(self, position):
+        if position[ROW] >= self.size[ROW] or position[ROW] < 0:
+            return False
+        if position[COLUMN] >= self.size[COLUMN] or position[COLUMN] < 0:
+            return False
         return True
     
     def nextPosition(self, position, direction):
@@ -96,3 +119,9 @@ class Board:
             return (position[ROW], position[COLUMN] + 1)
         elif direction == WEST:
             return (position[ROW], position[COLUMN] - 1)
+
+    def bikePosition(self, name): #returns the position of the bike with the name passed in
+        return self.bikePaths[name][-1]
+    
+    def startGame(self):
+        self.start = True

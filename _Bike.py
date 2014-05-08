@@ -19,15 +19,16 @@ class Bike:
         self.nextMove = LEFT
         
     def tick(self): #creates a new bike event and returns it to the main.
+        position = self.board.bikePosition(self.name)
         if self.nextMove == RIGHT:
-            bikeEvent = BikeEvent(_BikeEvent.RIGHT_TURN)
+            bikeEvent = BikeEvent(_BikeEvent.RIGHT_TURN, self.name, position)
         elif self.nextMove == LEFT:
-            bikeEvent = BikeEvent(_BikeEvent.LEFT_TURN)
+            bikeEvent = BikeEvent(_BikeEvent.LEFT_TURN, self.name, position)
         elif self.nextMove == STRAIGHT:
             check = self.board.checkStraight(self.name)
-            if check:
-                bikeEvent = BikeEvent(_BikeEvent.CRASH)
+            if not check:
+                bikeEvent = BikeEvent(_BikeEvent.CRASH, self.name, position)
             else:
-                bikeEvent = BikeEvent(_BikeEvent.STRAIGHT)   
+                bikeEvent = BikeEvent(_BikeEvent.STRAIGHT, self.name, position)
         self.nextMove = STRAIGHT
         return bikeEvent

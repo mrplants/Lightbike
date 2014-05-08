@@ -78,7 +78,7 @@ class PlayerConnector():
         self.board = board
         self.arenaConnection = None
 
-        self.initiateConnection()
+#         self.initiateConnection()
         
     # Starts a TCP connection with the port specified as the one for player/arena communication
     def initiateConnection(self):
@@ -101,7 +101,8 @@ class PlayerConnector():
         if self.arenaConnection:
             self.arenaConnection.sendData(event)
         else:
-            print "Error: player not yet connected to arena"
+            #print "Error: player not yet connected to arena"
+            pass
 
     # Called  when the player indicates that they are ready to play
     def ready(self):
