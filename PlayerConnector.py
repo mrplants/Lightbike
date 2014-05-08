@@ -20,8 +20,8 @@ ARENA_IP_ADDRESS = "student00.cse.nd.edu"
 
 # The actual connection with the Arena that will send and receive data
 class PlayerConnection(Protocol):
-    def __init__(self):
-        pass
+    def __init__(self, callback):
+        self.connectionCallback = callback
 
     # To Arena
     def connectionMade(self):
@@ -29,11 +29,12 @@ class PlayerConnection(Protocol):
 
     # From Arena
     def dataReceived(self, data):
-        print data
-        if data == BikeEvent.CRASH:
-            self.board.newEvent(BikeEvent(BikeEvent.CRASH))
+        # Check for non-event messages
+        # Pass the BikeEvent from some other player to this player's board
+        self.board.newEvent(data)
 
     # To Arena to update it about things happening to this player
+    #   Will be sending BikeEvents
     def sendData(self, message):
         self.transport.write(message)
 
@@ -54,17 +55,27 @@ class PlayerConnector():
         self.id = "connector"
         self.board = board
         self.board.addBike(self.id, (255, 0, 0)) # Do this when a player connects
+        self.arenaConnection = None
 
         self.initiateConnection()
         
     # Starts a TCP connection with the port specified as the one for player/arena communication
     def initiateConnection(self):
         # To connect to the Arena to establish the player's connection
-        reactor.connectTCP(ARENA_IP_ADDRESS, PLAYER_PORT, PlayerConnectionFactory())
+        reactor.connectTCP(ARENA_IP_ADDRESS, PLAYER_PORT, PlayerConnectionFactory(self.connectionCallback))
         reactor.run()
+
+    # Gives the PlayerConnector a reference to the connection for further communication
+    def connectionCallback(self, connection):
+        self.arenaConnection = connection
         
+    # Receives a BikeEvent and passes it to the Arena (so arena can tell other players)
+    # TODO pickle?
     def newEvent(self, event):
-        pass
+        if self.arenaConnection:
+            self.arenaConnection.sendData(event)
+        else:
+            print "Error: player not yet connected to arena"
 
 if __name__ == "__main__":
     # For testing
