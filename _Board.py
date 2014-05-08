@@ -38,6 +38,7 @@ class Board:
         self.countN = 1
         
     def addBike(self, bikeName, color):
+        print "new bike: " + bikeName
         self.countN = self.countN + 2
         if self.countN >= self.countD:
             self.countN = 1
@@ -46,7 +47,8 @@ class Board:
         print "bike ratio" + str(ratio)
         self.bikes.append(bikeName)
         self.bikeDirections[bikeName] = NORTH
-        self.bikePaths[bikeName] = [(self.size[ROW]/2, self.size[COLUMN] * float(ratio))]
+        self.bikePaths[bikeName] = [(self.size[ROW]/2, self.size[COLUMN] * float(ratio)), (self.size[ROW]/2, self.size[COLUMN] * float(ratio))]
+        print "bike location: " + str(self.bikePaths[bikeName][-1])
         self.bikeColors[bikeName] = color
     
     def turnBikeRight(self, bikeName):
@@ -71,12 +73,26 @@ class Board:
     
     def tick(self):
         for bikeName in self.bikes:
-            position = self.bikePaths[bikeName][-1]
-            if self.bikeDirections[bikeName] == NORTH:
-                self.bikePaths[bikeName].append((position[ROW] - 1, position[COLUMN]))
-            elif self.bikeDirections[bikeName] == SOUTH:
-                self.bikePaths[bikeName].append((position[ROW] + 1, position[COLUMN]))
-            elif self.bikeDirections[bikeName] == EAST:
-                self.bikePaths[bikeName].append((position[ROW], position[COLUMN] + 1))
-            elif self.bikeDirections[bikeName] == WEST:
-                self.bikePaths[bikeName].append((position[ROW], position[COLUMN] - 1))
+            print "added to bike path"
+            for node in self.bikePaths[bikeName]:
+                print "bike location: " + str(node)
+            self.bikePaths[bikeName].append(self.nextPosition(self.bikePaths[bikeName][-1], self.bikeDirections[bikeName]))
+
+        
+    def checkStraight(self, bikeName):
+        nextPosition = self.nextPosition(self.bikePaths[bikeName][-1], self.bikeDirections[bikeName])
+        for bikeName in self.bikes:
+            for position in self.bikePaths[bikeName]:
+                if nextPosition == position:
+                    return False
+        return True
+    
+    def nextPosition(self, position, direction):
+        if direction == NORTH:
+            return(position[ROW] - 1, position[COLUMN])
+        elif direction == SOUTH:
+            return (position[ROW] + 1, position[COLUMN])
+        elif direction == EAST:
+            return (position[ROW], position[COLUMN] + 1)
+        elif direction == WEST:
+            return (position[ROW], position[COLUMN] - 1)

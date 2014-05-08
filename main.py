@@ -1,12 +1,12 @@
 import pygame, sys
-from Board import Board
-from View import View
-from Bike import Bike
+from _Board import Board
+from _View import View
+from _Bike import Bike
 from PlayerConnector import PlayerConnector
 
 pygame.init()
 
-board = Board()
+board = Board(500, 500)
 connection = PlayerConnector(board)
 bike = Bike(board, connection.id)
 view = View(board.size)

@@ -43,6 +43,7 @@ class PlayerConnectionFactory(ClientFactory):
 class PlayerConnector():
     def __init__(self, board):
         self.id = "connector"
+        board.addBike(self.id, (255, 0, 0))
         
     # Starts a TCP connection with the port specified as the one for player/arena communication
     def initiateConnection(self):
