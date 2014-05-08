@@ -13,6 +13,7 @@ from twisted.internet.protocol import Protocol
 from twisted.internet.protocol import ClientFactory
 from twisted.internet import reactor
 from twisted.internet.defer import DeferredQueue
+from _BikeEvent import BikeEvent
 
 PLAYER_PORT = 9000
 ARENA_IP_ADDRESS = "student00.cse.nd.edu"
@@ -22,11 +23,19 @@ class PlayerConnection(Protocol):
     def __init__(self):
         pass
 
+    # To Arena
     def connectionMade(self):
         print 'Connected to Arena'
 
+    # From Arena
     def dataReceived(self, data):
         print data
+        if data == BikeEvent.CRASH:
+            self.board.newEvent(BikeEvent(BikeEvent.CRASH))
+
+    # To Arena to update it about things happening to this player
+    def sendData(self, message):
+        self.transport.write(message)
 
 
 # Factory for the connection with the Arena
@@ -43,7 +52,10 @@ class PlayerConnectionFactory(ClientFactory):
 class PlayerConnector():
     def __init__(self, board):
         self.id = "connector"
-        board.addBike(self.id, (255, 0, 0))
+        self.board = board
+        self.board.addBike(self.id, (255, 0, 0)) # Do this when a player connects
+
+        self.initiateConnection()
         
     # Starts a TCP connection with the port specified as the one for player/arena communication
     def initiateConnection(self):
