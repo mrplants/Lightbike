@@ -3,7 +3,7 @@ from _Board import Board
 from _View import View
 from _Bike import Bike
 from PlayerConnector import PlayerConnector
-import time
+# import time
 
 pygame.init()
 
@@ -14,13 +14,20 @@ view = View(board.size)
 
 while 1:
     
-    #check the events queue
-    for event in pygame.event.get():
-        if board.start:
+    if not board.start:
+        view.showReadyButton()
+        #check the events queue
+        for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 #maybe alert the PlayerConnection that a client has quit?
                 sys.exit()
-        else:        
+            elif event.type == pygame.MOUSEBUTTONUP:
+                pos = pygame.mouse.get_pos()
+                if view.pointOnReadyButton(pos):
+                    print "ready"
+                    connection.ready()
+    else:        
+        for event in pygame.event.get():
             #quit game on quit
             if event.type == pygame.QUIT:
                 #maybe alert the PlayerConnection that a client has quit?

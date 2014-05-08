@@ -51,7 +51,6 @@ class Board:
         self.bikes.append(bikeName)
         self.bikeDirections[bikeName] = NORTH
         self.bikePaths[bikeName] = [(self.size[ROW]/2, self.size[COLUMN] * float(ratio)), (self.size[ROW]/2, self.size[COLUMN] * float(ratio))]
-        print "bike location: " + str(self.bikePaths[bikeName][-1])
         self.bikeColors[bikeName] = color
     
     def newEvent(self, event):
@@ -85,9 +84,6 @@ class Board:
     
     def tick(self):
         for bikeName in self.bikes:
-            print "added to bike path"
-            for node in self.bikePaths[bikeName]:
-                print "bike location: " + str(node)
             self.bikePaths[bikeName].append(self.nextPosition(self.bikePaths[bikeName][-1], self.bikeDirections[bikeName]))
 
         
