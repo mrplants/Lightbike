@@ -76,22 +76,22 @@ class Arena():
     def connectionHandler(self, message, player, data):
         if message == "player joined":
             # Create a unique ID for the player and set it accordingly
-            id = len(self.players) + 1
-            player.setID(id)
+            ID = len(self.players) + 1
+            player.setID(ID)
             # Added to the list of players for future communication
-            self.players[id] = player
+            self.players[ID] = player
             # Let players know a new bike joined
-            self.broadcastMessage(message, id)
+            self.broadcastMessage(message, ID)
         elif message == "new data":
             pass
         elif message == "connection lost":
-            self.broadcastMessage(message, id)
-            del self.players[id] # Deletes this player from the dictionary of players
+            self.broadcastMessage(message, ID)
+            del self.players[ID] # Deletes this player from the dictionary of players
 
     # Calls the sendData method for every player except the one the message originated from
-    def broadcastMessage(self, message, id):
+    def broadcastMessage(self, message, ID):
         for player in self.players:
-            if player != id:
+            if player != ID:
                 self.players[player].sendData(message)
 
 
