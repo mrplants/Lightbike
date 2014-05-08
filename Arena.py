@@ -37,10 +37,17 @@ class PlayerConnection(Protocol):
     def setID(self, newID):
         self.id = newID
 
+    def pickColor(self):
+        return (255, 0, 0)
+
     # Autmatically called when the player first connects
     def connectionMade(self):
         print "player connected"
-        self.connectionCallback(NEW_PLAYER, self, None)
+        data = {}
+        data['id'] = self.id
+        data['message'] = NEW_PLAYER
+        data['color'] = self.pickColor()
+        self.connectionCallback(message, self, data)
 
     def connectionLost(self):
         self.connectionCallback(CONN_LOST, self, None)
@@ -93,9 +100,9 @@ class Arena():
             # Added to the list of players for future communication
             self.players[ID] = player
             # Alerts all other players that a new bike joined
-            self.broadcastMessage(message, ID)
+            self.broadcastMessage(data, ID)
 
-        elif message == READY:,
+        elif message == READY:
             startGame = True
             for player in self.players:
                 if not self.players[player].ready:
@@ -118,9 +125,13 @@ class Arena():
             print "Error: unrecognized message"
 
     # Calls the sendData method for every player except the one the message originated from
-    def broadcastMessage(self, data, ID):
+    def broadcastMessage(self, message, ID):
+        data = {}
+        data['message'] = message
+        data['id'] = ID
         for player in self.players:
             if player != ID:
+
                 self.players[player].sendData(data)
 
 

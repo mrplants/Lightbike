@@ -14,6 +14,7 @@ from twisted.internet.protocol import ClientFactory
 from twisted.internet import reactor
 from twisted.internet.defer import DeferredQueue
 from _BikeEvent import BikeEvent
+import _BikeEvent
 
 PLAYER_PORT = 9000
 ARENA_IP_ADDRESS = "student00.cse.nd.edu"
@@ -40,7 +41,7 @@ class PlayerConnection(Protocol):
         # Check for each type of event arena broadcasts
         if data == CONN_LOST:
             print "a player lost connection"
-            event = BikeEvent(BikeEvent.CRASH, , 0)
+            event = BikeEvent(_BikeEvent.CRASH, 0, 0)
             self.board.newEvent(event)
 
         elif data == NEW_PLAYER:
@@ -78,7 +79,7 @@ class PlayerConnector():
         self.board = board
         self.arenaConnection = None
 
-#         self.initiateConnection()
+        #self.initiateConnection()
         
     # Starts a TCP connection with the port specified as the one for player/arena communication
     def initiateConnection(self):
@@ -88,8 +89,9 @@ class PlayerConnector():
 
     # Gives the PlayerConnector a reference to the connection for further communication
     def connectionCallback(self, connection, data):
-        if data == NEW_PLAYER:
-            #self.board.addBike(self.id, (255, 0, 0)) # Do this when a player connects
+        if data['message'] == NEW_PLAYER:
+            # Since a new player just connected, they must be added to the board
+            self.board.addBike(data['id'], data['color'])
         elif data == START_GAME:
             self.board.startGame()
         elif data == CONNECTED:
