@@ -57,7 +57,7 @@ class PlayerConnector():
         self.board.addBike(self.id, (255, 0, 0)) # Do this when a player connects
         self.arenaConnection = None
 
-        self.initiateConnection()
+#         self.initiateConnection()
         
     # Starts a TCP connection with the port specified as the one for player/arena communication
     def initiateConnection(self):
@@ -75,7 +75,8 @@ class PlayerConnector():
         if self.arenaConnection:
             self.arenaConnection.sendData(event)
         else:
-            print "Error: player not yet connected to arena"
+            #print "Error: player not yet connected to arena"
+            pass
 
 if __name__ == "__main__":
     # For testing
