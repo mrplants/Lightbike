@@ -54,6 +54,7 @@ class PlayerConnector():
         pass
 
 if __name__ == "__main__":
+    # For testing
     connector = PlayerConnector(None)
     connector.initiateConnection()
     
