@@ -32,15 +32,15 @@ class PlayerConnection(Protocol):
     # Autmatically called when the player first connects
     def connectionMade(self):
         print "player connected"
-        self.connectionCallback("player joined", self)
+        self.connectionCallback("player joined", self, None)
 
     def connectionLost(self):
-        self.connectionCallback("connection lost", self)
+        self.connectionCallback("connection lost", self, None)
 
     # Automatically called when the player sends data over the conneciton
     def dataReceived(self, data):
         print "data from player " + str(self.id)
-        self.connectionCallback("new data", data)
+        self.connectionCallback("new data", self, data)
 
     # Writes a message to the player
     # TODO pass id of player the message is about
@@ -73,13 +73,13 @@ class Arena():
         reactor.run() # Waits forever for connections
 
     # When a player connects or sends data, this callback will parse and handle the event/data
-    def connectionHandler(self, message, data):
+    def connectionHandler(self, message, player, data):
         if message == "player joined":
             # Create a unique ID for the player and set it accordingly
             id = len(self.players) + 1
-            data.setID(id)
+            player.setID(id)
             # Added to the list of players for future communication
-            self.players[id] = data
+            self.players[id] = player
             # Let players know a new bike joined
             self.broadcastMessage(message, id)
         elif message == "new data":
