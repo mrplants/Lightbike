@@ -14,8 +14,8 @@ from twisted.internet.protocol import ClientFactory
 from twisted.internet import reactor
 from twisted.internet.defer import DeferredQueue
 
-PLAYER_PORT = 9010
-ARENA_IP_ADDRESS = "66.254.237.93"
+PLAYER_PORT = 9000
+ARENA_IP_ADDRESS = "student00.cse.nd.edu"
 
 # The actual connection with the Arena that will send and receive data
 class PlayerConnection(Protocol):
@@ -55,6 +55,7 @@ class PlayerConnector():
         pass
 
 if __name__ == "__main__":
-    connector = PlayerConnector()
+    # For testing
+    connector = PlayerConnector(None)
     connector.initiateConnection()
     
