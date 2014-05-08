@@ -8,7 +8,7 @@ pygame.init()
 
 board = Board()
 connection = PlayerConnector(board)
-bike = Bike(board, connection.ID)
+bike = Bike(board, connection.id)
 view = View(board.size)
 
 while 1:

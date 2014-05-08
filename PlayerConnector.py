@@ -41,7 +41,7 @@ class PlayerConnectionFactory(ClientFactory):
 
 # High level class that contains the factory and protocol that will set up and then be the connection with the arena
 class PlayerConnector():
-    def __init__(self):
+    def __init__(self, board):
         self.id = "connector"
         
     # Starts a TCP connection with the port specified as the one for player/arena communication
@@ -49,6 +49,9 @@ class PlayerConnector():
         # To connect to the Arena to establish the player's connection
         reactor.connectTCP(ARENA_IP_ADDRESS, PLAYER_PORT, PlayerConnectionFactory())
         reactor.run()
+        
+    def newEvent(self, event):
+        pass
 
 if __name__ == "__main__":
     connector = PlayerConnector()
