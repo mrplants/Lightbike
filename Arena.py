@@ -22,25 +22,66 @@ PLAYER_PORT = 9010
 
 # The actual connection with the player that will send and receive data
 class PlayerConnection(Protocol):
-	def __init__(self):
-		pass
+	def __init__(self, callback):
+		self.connectionCallback = callback # Player Connection will use this callback to let Arena handle all data and connections
+		self.id = -1 # ID is necessary for Arena to know who is sending it incoming data
+
+	# Autmatically called when the player first connects
+	def connectionMade(self):
+		self.id = len(self.arena.players) + 1
+		self.connectionCallback("player joined", self)
+
+	# Automatically called when the player sends data over the conneciton
+	def dataReceived(self, data):
+		self.connectionCallback("new data", data)
+
+	# Writes a message to the player
+	# TODO pass id of player the message is about
+	def sendData(self, message):
+		self.transport.write(message)
 
 
 # Factory for the connection with the Arena
 #	This will create an instance of the PlayerConnection class that will be used during communication 
 class PlayerConnectionFactory(ClientFactory):
+	def __init__(self, callback):
+		self.connectionCallback = callback
+
 	def startedConnecting(self, connector):
 		print "A new player is connecting..."
 
 	def buildProtocol(self, address):
-		return PlayerConnection()
-		
+		# Arena is passed so that player connections can be kept in the arena's list of players
+		return PlayerConnection(self.callback)
+
 
 class Arena():
 	def __init__(self):
 		# Listens for incoming connections from players joining the game
-		reactor.listenTCP(PLAYER_PORT, PlayerConnectionFactory())
+		reactor.listenTCP(PLAYER_PORT, PlayerConnectionFactory(self.connectionHandler))
+		print "Waiting for connections..."
 		reactor.run() # Waits forever for connections
+
+		# List of players used for updating all players on the other players
+		self.players = {}
+
+	# When a player connects or sends data, this callback will parse and handle the event/data
+	def connectionHandler(self, message, data):
+		if message == "player joined":
+			# Added to the list of players for future communication
+			id = data.id
+			self.players[id] = data
+			# Let players know a new bike joined
+			self.broadcastMessage("player joined", id)
+		elif message == "new data":
+			pass
+
+	# Calls the sendData method for every player except the one the message originated from
+	def broadcastMessage(self, message, id):
+		for player in self.players:
+			if player.id != id:
+				player.sendData(message)
+
 
 
 if __name__ == "__main__":
