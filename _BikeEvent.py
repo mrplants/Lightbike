@@ -4,6 +4,7 @@ LEFT_TURN = "left turn"
 CRASH = "crash"
 
 class BikeEvent:
-    def __init__(self, reason = STRAIGHT):
+    def __init__(self, reason = STRAIGHT, id):
         self.reason = reason
+        self.id = id
         pass
