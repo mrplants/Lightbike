@@ -6,7 +6,7 @@ LEFT = "left"
 STRAIGHT = "straight"
 
 class Bike:
-    def __init__(self,board , name):
+    def __init__(self, board, name):
         self.board = board
         self.nextMove = STRAIGHT
         self.name = name
@@ -18,12 +18,10 @@ class Bike:
     def turnLeft(self):
         self.nextMove = LEFT
         
-    def tick(self):
+    def tick(self): #creates a new bike event and returns it to the main.
         if self.nextMove == RIGHT:
-            self.board.turnBikeRight(self.name)
             bikeEvent = BikeEvent(_BikeEvent.RIGHT_TURN)
         elif self.nextMove == LEFT:
-            self.board.turnBikeLeft(self.name)
             bikeEvent = BikeEvent(_BikeEvent.LEFT_TURN)
         elif self.nextMove == STRAIGHT:
             check = self.board.checkStraight(self.name)
@@ -32,5 +30,4 @@ class Bike:
             else:
                 bikeEvent = BikeEvent(_BikeEvent.STRAIGHT)   
         self.nextMove = STRAIGHT
-        
         return bikeEvent
