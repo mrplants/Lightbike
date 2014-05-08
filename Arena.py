@@ -12,7 +12,7 @@ from twisted.internet.defer import DeferredQueue
 
 # Tell bikes what color they are
 
-# Track connections and count
+# Track connections and count them
 # Accept incoming connections from bikes
 # Listen to when bikes turn and die
 
@@ -20,27 +20,46 @@ from twisted.internet.defer import DeferredQueue
 
 PLAYER_PORT = 9000
 
+# Messages
+READY = "ready"
+NEW_PLAYER = "player joined"
+CONN_LOST = "connection lost"
+BIKE_EVENT = "bike event"
+START_GAME = "start"
+
 # The actual connection with the player that will send and receive data
 class PlayerConnection(Protocol):
     def __init__(self, callback):
         self.connectionCallback = callback # Player Connection will use this callback to let Arena handle all data and connections
         self.id = -1 # ID is necessary for Arena to know who is sending it incoming data
+        self.ready = False
 
     def setID(self, newID):
         self.id = newID
 
+    def pickColor(self):
+        return (255, 0, 0)
+
     # Autmatically called when the player first connects
     def connectionMade(self):
         print "player connected"
-        self.connectionCallback("player joined", self, None)
+        data = {}
+        data['id'] = self.id
+        data['message'] = NEW_PLAYER
+        data['color'] = self.pickColor()
+        self.connectionCallback(message, self, data)
 
     def connectionLost(self):
-        self.connectionCallback("connection lost", self, None)
+        self.connectionCallback(CONN_LOST, self, None)
 
     # Automatically called when the player sends data over the conneciton
     def dataReceived(self, data):
         print "data from player " + str(self.id)
-        self.connectionCallback("new data", self, data)
+        if data == READY:
+            self.ready = True
+            self.connectionCallback(READY, self, None)
+        else:
+            self.connectionCallback(BIKE_EVENT, self, data)
 
     # Writes a message to the player
     # TODO pass id of player the message is about
@@ -74,25 +93,46 @@ class Arena():
 
     # When a player connects or sends data, this callback will parse and handle the event/data
     def connectionHandler(self, message, player, data):
-        if message == "player joined":
+        if message == NEW_PLAYER:
             # Create a unique ID for the player and set it accordingly
             ID = len(self.players) + 1
             player.setID(ID)
             # Added to the list of players for future communication
             self.players[ID] = player
-            # Let players know a new bike joined
+            # Alerts all other players that a new bike joined
+            self.broadcastMessage(data, ID)
+
+        elif message == READY:
+            startGame = True
+            for player in self.players:
+                if not self.players[player].ready:
+                    startGame = False
+
+            if startGame:
+                self.broadcastMessage(START_GAME, player.id)
+
+        elif message == BIKE_EVENT:
+            # Passes the BikeEvent received to all other players
+            self.broadcastMessage(data, player.id)
+
+        elif message == CONN_LOST:
+            # Alerts other players that one has lost its connection
             self.broadcastMessage(message, ID)
-        elif message == "new data":
-            pass
-        elif message == "connection lost":
-            self.broadcastMessage(message, ID)
-            del self.players[ID] # Deletes this player from the dictionary of players
+            # Deletes this player from the dictionary of players
+            del self.players[ID]
+
+        else:
+            print "Error: unrecognized message"
 
     # Calls the sendData method for every player except the one the message originated from
     def broadcastMessage(self, message, ID):
+        data = {}
+        data['message'] = message
+        data['id'] = ID
         for player in self.players:
             if player != ID:
-                self.players[player].sendData(message)
+
+                self.players[player].sendData(data)
 
 
 
